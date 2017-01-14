@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <ui:define name="top">
+        top
+    </ui:define>
+
+    <ui:define name="content">
+        #{BDM02MEDController.init()}
+        <!-- form LV1 -->
+        <h:form id="form_LV1">
+            <p:dataTable value="#{BDM02MEDController.itemLV1List}" var="item">
+                <p:column headerText="รหัส">
+                    #{item.mediaId}
+                </p:column>
+                <p:column headerText="ชื่อ">
+                    #{item.name}
+                </p:column>
+                <p:column headerText="ค่าปรับ">
+                    #{item.fine}
+                </p:column>
+                <p:column headerText="สถานะการใช้งาน">
+                    <p:selectBooleanCheckbox value="#{item.avaliable}">
+                        <p:ajax listener="#{BDM02MEDController.AvaliableChecked(item)}"/>
+                    </p:selectBooleanCheckbox>
+                </p:column>
+                <p:column headerText="">
+                    <f:facet name ="header">    <!--want to add button in the head not the record (use facet)-->
+                        <p:commandButton value="เพิ่ม" action="#{BDM02MEDController.prepareLV1Create()}" update=":form_LV1_dlg" oncomplete="PF('LV1_dlg').show()" />
+                    </f:facet>
+                    <p:commandButton value="แก้ไข" update=":form_LV1_dlg" oncomplete="PF('LV1_dlg').show()">
+                        <f:setPropertyActionListener value="#{item}" target="#{BDM02MEDController.selectedLV1One}" />
+                    </p:commandButton>
+                    <p:commandButton value="ลบ" update=":form_LV1" action="#{BDM02MEDController.onDelete()}">
+                        <f:setPropertyActionListener value="#{item}" target="#{BDM02MEDController.selectedLV1One}" />
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+        
+        <!-- dialog LV1 -->
+        <h:form id="form_LV1_dlg">
+            <p:dialog header="บันทึกผู้ใช้งาน" modal="true" showEffect="fade" widgetVar="LV1_dlg">
+                <p:panelGrid id="pg_LV1_dlg">
+                    <p:row>
+                        <p:column>
+                            รหัส:
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{BDM02MEDController.selectedLV1One.mediaId}" />
+                        </p:column>
+                    </p:row>
+                    <p:row>
+                        <p:column>
+                            ชื่อ:
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{BDM02MEDController.selectedLV1One.name}" required="true" requiredMessage="ห้ามว่าง 1" />
+                        </p:column>
+                        <p:column>
+                            ค่าปรับ
+                        </p:column>
+                        <p:column>
+                            <p:inputText value="#{BDM02MEDController.selectedLV1One.fine}" required="true" requiredMessage="ห้ามว่าง 2" />
+                        </p:column>
+                    </p:row>
+                </p:panelGrid>
+                <p:separator/>
+                <p:commandButton value="ยืนยัน" action="#{BDM02MEDController.onSaveLV1()}" oncomplete="handleSubmit(args, 'LV1_dlg')" update=":form_LV1,pg_LV1_dlg,:msg" />
+                <p:commandButton value="ยกเลิก" oncomplete=":form_LV1" /> <!--style="float: right"-->
+                <p:ajax event="close" update="pg_LV1_dlg" resetValues="true" />
+            </p:dialog>
+        </h:form>
+    </ui:define>
+</ui:composition>
